@@ -1,26 +1,21 @@
-import { call, put, takeLatest } from 'redux-saga/effects'
+import { call, put, takeLatest } from 'redux-saga/effects';
 
-import {
-  ListEntity,
-  getListByIdAction,
-  getListByIdSuccessAction,
-  getListByIdErrorAction,
-} from '../slices/listsSlice'
-import { fetchOneList } from '../../api/lists'
-import { PayloadAction } from '@reduxjs/toolkit'
+import { PayloadAction } from '@reduxjs/toolkit';
+import { UrlListEntity, getListByIdAction, getListByIdSuccessAction, getListByIdErrorAction } from '../slices/listsSlice';
+import { fetchOneUrlList } from '../../api/url-lists';
 
-function* getListByIdWorker(action: PayloadAction<Pick<ListEntity, 'id'>>) {
-  try {
-    const list: ListEntity = yield call(fetchOneList, action.payload)
+function* getListByIdWorker(action: PayloadAction<Pick<UrlListEntity, 'id'>>) {
+    try {
+        const list = (yield call(fetchOneUrlList, action.payload)) as UrlListEntity;
 
-    yield put(getListByIdSuccessAction(list))
-  } catch (error) {
-    yield put({ type: getListByIdErrorAction.type, error })
-  }
+        yield put(getListByIdSuccessAction(list));
+    } catch (error) {
+        yield put({ type: getListByIdErrorAction.type, error });
+    }
 }
 
 function* getListByIdSaga() {
-  yield takeLatest(`${getListByIdAction}`, getListByIdWorker)
+    yield takeLatest(getListByIdAction.type, getListByIdWorker);
 }
 
-export default getListByIdSaga
+export default getListByIdSaga;

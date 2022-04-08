@@ -1,7 +1,23 @@
-export const getRandomNumber = (min: number, max: number) =>
-  Math.floor(Math.random() * (max - min + 1)) + min
+export class HTTPError extends Error {}
 
-export const delay =
-  <T = any>(callback: (...args: unknown[]) => T) =>
-  (...args: unknown[]) =>
-    new Promise(resolve => setTimeout(() => resolve(callback(...args)), getRandomNumber(0, 1e3)))
+export interface PaginationMeta {
+    totalItems: number;
+    itemsPerPage: number;
+    totalPages: number;
+    currentPage: number;
+}
+
+export interface Pagination<T> {
+    items: T[];
+    meta: PaginationMeta;
+}
+
+export const fetchJSON = async <T = unknown>(input: RequestInfo, init?: RequestInit): Promise<T> => {
+    const response = await fetch(input, init);
+
+    if (!response.ok) {
+        throw new HTTPError(`Fetch error: ${response.statusText}`);
+    }
+
+    return (await response.json()) as T;
+};

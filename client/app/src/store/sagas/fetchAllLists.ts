@@ -1,25 +1,25 @@
-import { call, put, takeLatest } from 'redux-saga/effects'
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 
-import {
-  ListEntity,
-  fetchAllListsAction,
-  fetchAllListsSuccessAction,
-  fetchAllListsErrorAction,
-} from '../slices/listsSlice'
-import { fetchAllLists } from '../../api/lists'
+import { PayloadAction } from '@reduxjs/toolkit';
+import { UrlListEntity, fetchAllListsAction, fetchAllListsSuccessAction, fetchAllListsErrorAction } from '../slices/listsSlice';
+import { fetchAllUrlLists } from '../../api/url-lists';
+import { Pagination, PaginationMeta } from '../../api/utils';
+import { currentPageListsSelector } from '../selectors';
 
-function* fetchAllListsWorker() {
-  try {
-    const lists: ListEntity[] = yield call(fetchAllLists)
+function* fetchAllListsWorker({ payload }: PayloadAction<Pick<PaginationMeta, 'currentPage'>>) {
+    try {
+        const items = (yield select(currentPageListsSelector)) as UrlListEntity[];
 
-    yield put(fetchAllListsSuccessAction(lists))
-  } catch (error) {
-    yield put({ type: fetchAllListsErrorAction.type, error })
-  }
+        const response = items.length ? { items, ...payload } : ((yield call(fetchAllUrlLists, payload)) as Pagination<UrlListEntity>);
+
+        yield put(fetchAllListsSuccessAction(response as Pagination<UrlListEntity>));
+    } catch (error) {
+        yield put({ type: fetchAllListsErrorAction.type, error, payload });
+    }
 }
 
 function* fetchAllListsSaga() {
-  yield takeLatest(`${fetchAllListsAction}`, fetchAllListsWorker)
+    yield takeLatest(fetchAllListsAction.type, fetchAllListsWorker);
 }
 
-export default fetchAllListsSaga
+export default fetchAllListsSaga;

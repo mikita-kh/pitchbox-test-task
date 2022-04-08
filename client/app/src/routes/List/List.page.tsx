@@ -1,31 +1,21 @@
-import { useNavigate, useParams } from 'react-router'
-import ListContactsComponent from '../../components/ListContacts/ListContacts.component'
-import { listsByIdSelector } from '../../store/selectors'
-import { useCallback, useEffect, useMemo } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { getListByIdAction } from '../../store/slices/listsSlice'
+import { useNavigate, useParams } from 'react-router';
+import { useCallback, useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import ListContactsComponent from '../../components/ListContacts';
+import { listsByIdSelector } from '../../store/selectors';
 
 const ListPage = () => {
-  let dispatch = useDispatch()
-  let navigate = useNavigate()
-  let { id } = useParams()
-  let listsById = useSelector(listsByIdSelector)
+    const navigate = useNavigate();
+    const { id } = useParams();
+    const listsById = useSelector(listsByIdSelector);
 
-  console.log(listsById)
+    const list = useMemo(() => (id ? listsById[id] : null), [id, listsById]);
 
-  const list = useMemo(() => (id ? listsById[id] : null), [id, listsById])
+    const onClose = useCallback(() => {
+        navigate(-1);
+    }, [navigate]);
 
-  useEffect(() => {
-    if (id && !list) {
-      dispatch(getListByIdAction({ id }))
-    }
-  }, [id, list])
+    return list && <ListContactsComponent open={!!id} list={list} onClose={onClose} />;
+};
 
-  const onClose = useCallback(() => {
-    navigate(-1)
-  }, [navigate])
-
-  return list && <ListContactsComponent open={!!id} list={list} onClose={onClose} />
-}
-
-export default ListPage
+export default ListPage;

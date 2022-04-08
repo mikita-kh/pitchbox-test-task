@@ -1,13 +1,13 @@
-import { combineReducers } from '@reduxjs/toolkit'
+import { combineReducers } from '@reduxjs/toolkit';
 
-import listsReducer, { ListsState } from './slices/listsSlice'
+import listsReducer, { ListsState } from './slices/listsSlice';
 
 export interface RootState {
-  lists: ListsState
+    lists: ListsState;
 }
 
-const reducer = combineReducers({
-  lists: listsReducer,
-})
+const rootReducer = combineReducers({
+    lists: listsReducer,
+});
 
-export default reducer
+export default rootReducer;

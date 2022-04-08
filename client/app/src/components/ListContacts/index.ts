@@ -1,1 +1,1 @@
-export { default } from './ListContacts.component'
+export { default } from './ListContacts.component';

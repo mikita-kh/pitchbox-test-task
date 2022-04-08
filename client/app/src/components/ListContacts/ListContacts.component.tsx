@@ -1,54 +1,83 @@
 import {
-  Box,
-  CircularProgress,
-  Dialog,
-  DialogContent,
-  DialogProps,
-  DialogTitle,
-  Typography,
-} from '@mui/material'
-import { ListEntity } from '../../store/slices/listsSlice'
+    CircularProgress,
+    Dialog,
+    DialogContent,
+    DialogProps,
+    DialogTitle,
+    IconButton,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import { MouseEventHandler, useMemo } from 'react';
+import { UrlListEntity } from '../../store/slices/listsSlice';
+import { StyledBlock, StyledContainer, StyledLabel } from '../ListCard';
 
-export type ListContactsComponentProps = DialogProps & { list: ListEntity | null }
+export type ListContactsComponentProps = DialogProps & { list: UrlListEntity | null };
 
-const ListContactsComponent = ({ list, ...rest }: ListContactsComponentProps) => (
-  <Dialog {...rest} fullWidth maxWidth="lg" scroll="paper">
-    {list ? (
-      <>
-        <DialogTitle sx={{ pt: 6, pb: 3, textAlign: 'center' }}>{list.name}</DialogTitle>
-        <Box sx={{ px: 10, textAlign: 'center' }}>
-          <Typography>Date: {new Date(list.createTime).toISOString().slice(0, 10)}</Typography>
-          <Typography>Num Contacts: {list.contacts.length}</Typography>
-        </Box>
-        <DialogContent sx={{ pt: 0, pl: 10, pr: 7, pb: 4 }}>
-          <table>
-            <thead>
-              <tr>
-                <th>Domain</th>
-                <th>Email Address</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Confidence</th>
-              </tr>
-            </thead>
-            <tbody>
-              {list.contacts.map(contact => (
-                <tr key={contact.id}>
-                  <td>{contact.domain}</td>
-                  <td>{contact.email}</td>
-                  <td>{contact.firstName}</td>
-                  <td>{contact.lastName}</td>
-                  <td>{contact.confidence}%</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </DialogContent>
-      </>
-    ) : (
-      <CircularProgress />
-    )}
-  </Dialog>
-)
+const ListContactsComponent = ({ list, onClose, ...rest }: ListContactsComponentProps) => {
+    const numContacts = useMemo(() => list?.domains?.reduce((acc, { contacts }) => acc + contacts.length, 0) || 0, [list]);
 
-export default ListContactsComponent
+    return (
+        <Dialog {...rest} onClose={onClose} fullWidth maxWidth="lg" scroll="paper">
+            <IconButton sx={{ position: 'absolute', top: 8, right: 8 }} onClick={onClose as unknown as MouseEventHandler}>
+                <CloseIcon />
+            </IconButton>
+            {list?.domains?.length ? (
+                <>
+                    <DialogTitle
+                        sx={{ pt: 7, pb: 3 }}
+                        /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
+                        // @ts-ignore
+                        variant="h4"
+                        align="center"
+                    >
+                        {list.name}
+                    </DialogTitle>
+                    <StyledContainer sx={{ mt: 0, mx: 'auto', mb: 1 }}>
+                        <StyledBlock>
+                            <StyledLabel>Date:</StyledLabel> {list.createdAt.slice(0, 10)}
+                        </StyledBlock>
+                        <StyledBlock>
+                            <StyledLabel>Num Contacts:</StyledLabel> {numContacts}
+                        </StyledBlock>
+                    </StyledContainer>
+                    <TableContainer component={DialogContent} sx={{ pt: 0, pl: 10, pr: 7, pb: 4 }}>
+                        <Table stickyHeader>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Domain</TableCell>
+                                    <TableCell>Email Address</TableCell>
+                                    <TableCell>First Name</TableCell>
+                                    <TableCell>Last Name</TableCell>
+                                    <TableCell>Confidence</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            {list.domains.map(({ contacts, domainName, id: domainId }) => (
+                                <TableBody key={domainId}>
+                                    {contacts.map((contact) => (
+                                        <TableRow key={contact.id}>
+                                            <TableCell>{domainName}</TableCell>
+                                            <TableCell>{contact.email}</TableCell>
+                                            <TableCell>{contact.firstName}</TableCell>
+                                            <TableCell>{contact.lastName}</TableCell>
+                                            <TableCell>{contact.confidence}%</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            ))}
+                        </Table>
+                    </TableContainer>
+                </>
+            ) : (
+                <CircularProgress />
+            )}
+        </Dialog>
+    );
+};
+
+export default ListContactsComponent;

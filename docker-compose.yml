@@ -1,0 +1,39 @@
+version: "3.7"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    environment:
+      DATABASE_HOST: "mysql"
+      DATABASE_PORT: "3306"
+      DATABASE_USERNAME: "${DATABASE_USERNAME:-pb_interview}"
+      DATABASE_PASSWORD: "${DATABASE_PASSWORD:-pb_interview}"
+      DATABASE_NAME: "${DATABASE_NAME:-pb_interview}"
+      HUNTER_IO_API_KEY: "${HUNTER_IO_API_KEY}"
+      WAIT_HOSTS: "mysql:3306"
+      WAIT_TIMEOUT: 60
+      WAIT_SLEEP_INTERVAL: 3
+    ports:
+      - "8080:3000"
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules
+    depends_on:
+      - db
+  db:
+    platform: linux/x86_64
+    image: mysql:8
+    hostname: mysql
+    restart: always
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "true"
+      MYSQL_USER: "${DATABASE_USERNAME:-pb_interview}"
+      MYSQL_PASSWORD: "${DATABASE_PASSWORD:-pb_interview}"
+      MYSQL_DATABASE: "${DATABASE_NAME:-pb_interview}"
+    expose:
+      - "3306"
+    volumes:
+      - .:/data

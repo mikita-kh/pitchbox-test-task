@@ -1,13 +1,18 @@
-import { RootState } from '../rootReducer'
-import { createSelector } from '@reduxjs/toolkit'
-import { ListEntity } from '../slices/listsSlice'
+import { createSelector } from '@reduxjs/toolkit';
+import { RootState } from '../rootReducer';
 
-export const listsByIdSelector = (state: RootState) => state.lists.listsById
-export const listsIdsSelector = (state: RootState) => state.lists.ids
-export const listsFetchingSelector = (state: RootState) => state.lists.isFetching
-export const listCreatingSelector = (state: RootState) => state.lists.isCreating
+export const listsByIdSelector = (state: RootState) => state.lists.listsById;
+export const listsPagesSelector = (state: RootState) => state.lists.pages;
+export const currentPageSelector = (state: RootState) => state.lists.currentPage;
+export const totalPagesSelector = (state: RootState) => state.lists.totalPages;
+export const listCreatingSelector = (state: RootState) => state.lists.isCreating;
 
-export const listsSelector = createSelector(
-  [listsIdsSelector, listsByIdSelector],
-  (ids, listsById) => ids.map(id => listsById[id] as ListEntity),
-)
+export const currentPageListsSelector = createSelector(
+    [listsByIdSelector, listsPagesSelector, currentPageSelector],
+    (listsById, pages, currentPage) => (pages[currentPage]?.ids ?? []).map((id) => listsById[id]),
+);
+
+export const currentPageFetchingSelector = createSelector(
+    [listsPagesSelector, currentPageSelector],
+    (pages, currentPage) => !!pages[currentPage]?.isFetching,
+);

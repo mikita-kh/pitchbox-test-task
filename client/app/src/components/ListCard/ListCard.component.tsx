@@ -1,25 +1,34 @@
-import { ListEntity } from '../../store/slices/listsSlice'
-import { CardProps, Card, CardContent, Typography, CardActionArea } from '@mui/material'
-import { MouseEventHandler } from 'react'
+import { CardProps, Typography, CardActionArea } from '@mui/material';
+import { MouseEventHandler, useMemo } from 'react';
+import { UrlListEntity } from '../../store/slices/listsSlice';
+import { StyledBlock, StyledCard, StyledCardContent, StyledCardFooter, StyledContainer, StyledLabel } from './ListCard.styles';
 
 export interface ListCardComponentProps extends CardProps {
-  list: ListEntity
+    list: UrlListEntity;
 }
 
-const ListCardComponent = ({ list, onClick, ...rest }: ListCardComponentProps) => (
-  <Card sx={{ justifyContent: 'stretch', alignItems: 'stretch', display: 'flex' }} {...rest}>
-    <CardActionArea onClick={onClick as unknown as MouseEventHandler}>
-      <CardContent>
-        <Typography variant="h5">{list.name}</Typography>
-      </CardContent>
-      <CardContent
-        sx={{ borderTop: 'solid 1px #E3E3E3', display: 'flex', justifyContent: 'space-between' }}
-      >
-        <Typography>Date: {new Date(list.createTime).toISOString().slice(0, 10)}</Typography>
-        <Typography>Num Contacts: {list.contacts.length}</Typography>
-      </CardContent>
-    </CardActionArea>
-  </Card>
-)
+const ListCardComponent = ({ list, onClick, ...rest }: ListCardComponentProps) => {
+    const numContacts = useMemo(() => list.domains.reduce((acc, { contacts }) => acc + contacts.length, 0), [list]);
 
-export default ListCardComponent
+    return (
+        <StyledCard {...rest}>
+            <CardActionArea onClick={onClick as unknown as MouseEventHandler}>
+                <StyledCardContent>
+                    <Typography variant="h5">{list.name || '\u0004'}</Typography>
+                </StyledCardContent>
+                <StyledCardFooter>
+                    <StyledContainer>
+                        <StyledBlock>
+                            <StyledLabel>Date:</StyledLabel> {list.createdAt.slice(0, 10)}
+                        </StyledBlock>
+                        <StyledBlock>
+                            <StyledLabel>Num Contacts:</StyledLabel> {numContacts}
+                        </StyledBlock>
+                    </StyledContainer>
+                </StyledCardFooter>
+            </CardActionArea>
+        </StyledCard>
+    );
+};
+
+export default ListCardComponent;

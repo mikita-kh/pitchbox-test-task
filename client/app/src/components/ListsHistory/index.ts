@@ -1,1 +1,1 @@
-export { default } from './ListsHistory.component'
+export { default } from './ListsHistory.component';
